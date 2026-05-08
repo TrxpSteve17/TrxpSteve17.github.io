@@ -54,6 +54,7 @@ makeSnakeSquare(10, 10);
 makeSnakeSquare(10, 9);
 makeSnakeSquare(10, 8);
 snake.head = snake.body[0];
+snake.head.direction = "right";
   
   // TODO 4, Part 3: initialize the apple
 makeApple();
@@ -122,28 +123,36 @@ function moveSnake() {
     column/row properties. 
   */
 
-
-
-
-
   //Before moving the head, check for a new direction from the keyboard input
   checkForNewDirection();
 
-  
+  // Move body segments to follow the head
+  for (let i = snake.body.length - 1; i > 0; i--) {
+    snake.body[i].row = snake.body[i-1].row;
+    snake.body[i].column = snake.body[i-1].column;
+    repositionSquare(snake.body[i]);
+  }
 
-    TODO 8: determine the next row and column for the snake's head
-    
-    HINT: The snake's head will need to move forward 1 square based on the value
-    of snake.head.direction which may be one of "left", "right", "up", or "down"
-  */
+  // Move head
+  if (snake.head.direction === "left") {
+    snake.head.column -= 1;
+  } else if (snake.head.direction === "right") {
+    snake.head.column += 1;
+  } else if (snake.head.direction === "up") {
+    snake.head.row -= 1;
+  } else if (snake.head.direction === "down") {
+    snake.head.row += 1;
+  }
 
-
-
-
+  repositionSquare(snake.head);
 }
 
 // TODO 9: Create a new helper function
-
+function moveBodyAToBodyB (BodyA, BodyB) {var bodyA = { row: 5, column: 5, direction: "right" };
+var bodyB = { row: 6, column: 5, direction: "down" };
+console.log(`before moving, body A: ${JSON.stringify(bodyA)}`); // Should log: { row: 5, column: 5, direction: "right" }
+moveBodyAToBodyB(bodyA, bodyB);
+console.log(`after moving, body A: ${JSON.stringify(bodyA)}`); // Should log: { row: 6, column: 5, direction: "down" } || Note the match with bodyB}
 
 
 
@@ -156,9 +165,7 @@ function hasHitWall() {
     HINT: What will the row and column of the snake's head be if this were the case?
   */
 
-
-
-  return false;
+  return snake.head.row < 0 || snake.head.row >= ROWS || snake.head.column < 0 || snake.head.column >= COLUMNS;
 }
 
 function hasCollidedWithApple() {
@@ -169,9 +176,7 @@ function hasCollidedWithApple() {
     HINT: Both the apple and the snake's head are aware of their own row and column
   */
 
-
-
-  return false;
+  return snake.head.row === apple.row && snake.head.column === apple.column;
 }
 
 function handleAppleCollision() {
@@ -198,8 +203,11 @@ function hasCollidedWithSnake() {
     head and each part of the snake's body also knows its own row and column.
   */
 
-
-
+  for (let i = 1; i < snake.body.length; i++) {
+    if (snake.head.row === snake.body[i].row && snake.head.column === snake.body[i].column) {
+      return true;
+    }
+  }
   return false;
 }
 
@@ -319,7 +327,12 @@ function getRandomAvailablePosition() {
       spaceIsAvailable to false so that a new position is generated.
     */
 
-
+    for (let segment of snake.body) {
+      if (segment.row === randomPosition.row && segment.column === randomPosition.column) {
+        spaceIsAvailable = false;
+        break;
+      }
+    }
 
   }
 
